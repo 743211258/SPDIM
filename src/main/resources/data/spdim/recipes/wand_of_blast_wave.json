@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #P",
+    " E#",
+    "S  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:firework_rocket"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "E": {
+      "item": "minecraft:elytra"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "spdim:wand_of_blast_wave",
+    "count": 1
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #L",
+    " E#",
+    "S  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:fire_charge"
+    },
+    "L": {
+      "item": "minecraft:lava_bucket"
+    },
+    "E": {
+      "item": "minecraft:elytra"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "spdim:wand_of_fireblast",
+    "count": 1
+  }
+}

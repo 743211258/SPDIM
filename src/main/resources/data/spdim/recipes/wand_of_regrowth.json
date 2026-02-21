@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #B",
+    " E#",
+    "S  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:oak_wood"
+    },
+    "B": {
+      "item": "minecraft:bone_meal"
+    },
+    "E": {
+      "item": "minecraft:elytra"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "spdim:wand_of_regrowth",
+    "count": 1
+  }
+}

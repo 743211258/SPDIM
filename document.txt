@@ -1,0 +1,53 @@
+All wands have 4 maximum energy, using the wand cost 1 energy, and cooldown for 1 energy is 15 seconds.
+
+Wand of Blast Wave:
+
+Usage: Equip it with main hand and right click to use.
+
+The wand casts a blast wave throwable projectile, moving forward until it reaches maximum distance (100 blocks from the caster). The blast wave explodes once touches blocks, entities, fluids, projectiles, or reaches maximum distance, pushing away all entities within 5-blocks radius. Blocks between the exploding location and the player reduce the pushing force by 1/5, and holding a shield while facing the blast wave reduces the pushing force by 1/3. The two reductions are multiplcative.
+
+
+
+Wand of Lightning:
+
+Usage: Equip it with main hand and right click to use.
+
+The wand casts a lightning within 50-blocks radius at the location that the crosshair is pointing, but the lightning can be blocked by any blocks on top of it. Then it will search for any living entity within 5-block radius of the strike point. If there are entities, then the chain effect applys and it will also search within 5-block radius of the entity. The chain effect can be applied for at most 3 times, and an entity cannot be struck twice.
+
+
+
+Wand of Fireblast:
+
+Usage: Equip it with main hand and right click to use.
+
+The wand splashes out fire particles in front of the player. The range is a cone with a bottom of 5-block radius and height of 10. It ignites any surface within the range and spawn lava at the foot of any living entities. The fire can penetrate through anything.
+
+
+
+Wand of Regrowth:
+
+Usage: Equip it with main hand and right click to use.
+
+The wand splashes out particles in front of the player. The range is a cone with a bottom of 5-block radius and height of 10. It will surround any living entities with oak wood and root them for 3 seconds. Rooted living entities are invulnerable, but cannot move when the effect applies.
+
+
+
+
+
+All artifacts must hold with offhand to use.
+
+Timekeeper's Hourglass:
+
+Maximum Energy: 1
+Energy cost per cast: 1
+Cooldown: 45 seconds
+
+Press z: The wand freezes any living entity within 50-blocks radius at the location that the crosshair is pointing for 5 seconds. Frozen living entities cannot move or change the direction it is facing. All movement keys, z and x keys, left click, and right click are all disabled when the effect applies.
+
+Press x: Apply invisible effect to the caster for 10 seconds, meanwhile the player is also untargetable, immune from any melee attack and ignore any wands' or artifacts' effects from other casters.
+
+Chalice of Blood:
+
+One-time Use
+
+Press z: The artifact disappears, decreasing health points by 19 from the caster that ignores all defenses. Grant the caster with 95 absorptions, 1 minutes of movement speed, damage boost, jump boost, night vision, absorption, and damage resistance, but the caster will be frozen for 10 seconds immediately and prohibit health regain by any means for 5 minutes.

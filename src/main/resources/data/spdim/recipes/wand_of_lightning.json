@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #L",
+    " E#",
+    "S  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:spyglass"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "E": {
+      "item": "minecraft:elytra"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "spdim:wand_of_lightning",
+    "count": 1
+  }
+}

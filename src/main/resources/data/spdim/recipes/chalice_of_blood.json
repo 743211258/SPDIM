@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#R#",
+    "E#E",
+    " H "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:totem_of_undying"
+    },
+    "R": {
+      "item": "minecraft:red_mushroom_block"
+    },
+    "E": {
+      "item": "minecraft:enchanted_golden_apple"
+    },
+    "H": {
+      "item": "minecraft:heart_of_the_sea"
+    }
+  },
+  "result": {
+    "item": "spdim:chalice_of_blood",
+    "count": 1
+  }
+}

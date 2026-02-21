@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#C#",
+    " M ",
+    "NHN"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:goat_horn"
+    },
+    "C": {
+      "item": "minecraft:clock"
+    },
+    "M": {
+      "item": "minecraft:music_disc_11"
+    },
+    "N": {
+      "item": "minecraft:netherite_block"
+    },
+    "H": {
+      "item": "minecraft:heart_of_the_sea"
+    }
+  },
+  "result": {
+    "item": "spdim:timekeepers_hourglass",
+    "count": 1
+  }
+}
