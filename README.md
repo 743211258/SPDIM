@@ -1,4 +1,4 @@
-# SPDIM
+# Shattered Pixel Dungeon in Minecraft (SPDIM)
 
 SPDIM, or Shattered Pixel Dungeon in Minecraft, is a Minecraft Mod based on an open-source traditional roguelike dungeon game called Shattered Pixel Dungeon, developed by [Evan Debenham](https://github.com/00-Evan) under GNU GPLv3 license. This Mod aims to mimic or redesign items in Shattered Pixel Dungeon to Minecraft world.
 
