@@ -28,7 +28,4 @@ public abstract class Wand extends Item {
 
     // Wand interacts with the environment.
     protected abstract void cast(Level world, Player player, ItemStack stack);
-
-    public abstract ItemStack getItem();
-
 }

@@ -24,27 +24,4 @@ public class ServerEvents {
         RegenerationDisabled.tick();
         Rooted.tick();
     }
-
-    // Lock the speed and location of rooted player.
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
-
-        Player player = event.player;
-
-        if (!Rooted.isRooted(player)) {
-            return;
-        }
-
-        Vec3 lp = Rooted.LOCKED.get(player);
-        if (lp == null) {
-            return;
-        }
-
-        player.setPos(lp.x, lp.y, lp.z);
-
-        player.setDeltaMovement(Vec3.ZERO);
-    }
 }

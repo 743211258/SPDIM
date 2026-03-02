@@ -1,5 +1,6 @@
 package com.example.spdim.core.artifact;
 
+import com.example.spdim.ExampleMod;
 import com.example.spdim.core.Artifact;
 import com.example.spdim.core.mechanic.RegenerationDisabled;
 import com.example.spdim.core.mechanic.TickFreeze;
@@ -20,6 +21,11 @@ public class ChaliceOfBlood extends Artifact {
 
     public ChaliceOfBlood(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public boolean isApplicable(ItemStack stack, Level world) {
+        return true;
     }
 
     @Override
@@ -68,6 +74,4 @@ public class ChaliceOfBlood extends Artifact {
         // Disable regeneration for 5 minutes.
         RegenerationDisabled.disable(player, 6000);
     }
-
-
 }

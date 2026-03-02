@@ -26,6 +26,8 @@ public class TimekeepersHourglass extends Artifact {
     public TimekeepersHourglass(Properties properties) {
         super(properties);
     }
+
+    @Override
     public boolean isApplicable(ItemStack stack, Level world) {
         CompoundTag tag = stack.getOrCreateTag();
         long lastTime = tag.getLong("LastChargeTime");
@@ -103,5 +105,4 @@ public class TimekeepersHourglass extends Artifact {
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 200, 0, false, false));
         Untargetable.activate(player, 200);
     }
-
 }

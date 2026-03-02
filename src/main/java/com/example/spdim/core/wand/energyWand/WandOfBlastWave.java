@@ -53,8 +53,4 @@ public class WandOfBlastWave extends EnergyWand{
             }
         }
     }
-
-    public ItemStack getItem() {
-        return new ItemStack(ExampleMod.BLAST_WAVE_ITEM.get());
-    }
 }

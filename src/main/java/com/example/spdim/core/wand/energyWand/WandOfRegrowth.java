@@ -24,6 +24,11 @@ import java.util.*;
 
 public class WandOfRegrowth extends EnergyWand {
 
+    // parameters of the fireblast
+    private final double HEIGHT = 10;
+    private final double RADIUS = 10;
+    private final double STEP_HEIGHT = 1;
+    private final double STEP_RADIUS = 1;
     public static final Map<LivingEntity, Set<BlockPos>> BLOCKS = new HashMap<>();
 
     public WandOfRegrowth(Properties properties, int maxEnergy, int energyCost, int cooldown, Component name) {
@@ -44,17 +49,79 @@ public class WandOfRegrowth extends EnergyWand {
         Vec3 right = forward.cross(worldUp).normalize();
         Vec3 up = right.cross(forward).normalize();
 
-        // parameters of the blastwave
-        double maxRange = 10;
-        double stepForward = 1;
-        double stepRadius = 1;
+        Vec3 pointOne = origin.add(forward.scale(HEIGHT)).add(right.scale(RADIUS));
+        Vec3 pointTwo = origin.add(forward.scale(HEIGHT)).subtract(right.scale(RADIUS));
+        Vec3 pointThree = origin.add(forward.scale(HEIGHT)).add(up.scale(RADIUS));
+        Vec3 pointFour = origin.add(forward.scale(HEIGHT)).subtract(up.scale(RADIUS));
 
-        for (double d = 0; d <= maxRange; d += stepForward) {
+        double minX = Math.min(Math.min(Math.min(Math.min(origin.x, pointOne.x), pointTwo.x), pointThree.x), pointFour.x);
+        double minY = Math.min(Math.min(Math.min(Math.min(origin.y, pointOne.y), pointTwo.y), pointThree.y), pointFour.y);
+        double minZ = Math.min(Math.min(Math.min(Math.min(origin.z, pointOne.z), pointTwo.z), pointThree.z), pointFour.z);
+
+        double maxX = Math.max(Math.max(Math.max(Math.max(origin.x, pointOne.x), pointTwo.x), pointThree.x), pointFour.x);
+        double maxY = Math.max(Math.max(Math.max(Math.max(origin.y, pointOne.y), pointTwo.y), pointThree.y), pointFour.y);
+        double maxZ = Math.max(Math.max(Math.max(Math.max(origin.z, pointOne.z), pointTwo.z), pointThree.z), pointFour.z);
+
+        AABB collision_box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+
+        // Detect for living entities
+        List<LivingEntity> entities = world.getEntitiesOfClass(
+                LivingEntity.class,
+                collision_box,
+                e -> {
+                    if (e == player ||
+                            Untargetable.isUntargetable(e)) {
+                        return false;
+                    }
+                    Vec3 vectorFromOriginToEntity = e.position().subtract(origin);
+                    double projectionLength = vectorFromOriginToEntity.dot(forward);
+                    if (projectionLength <= 0 || projectionLength > HEIGHT) {
+                        return false;
+                    }
+                    double verticalLengthFromEntityToProjectionSqr = vectorFromOriginToEntity.lengthSqr() - (projectionLength * projectionLength);
+                    double radiusAtSamePlane = projectionLength;
+                    return (verticalLengthFromEntityToProjectionSqr <= radiusAtSamePlane * radiusAtSamePlane);
+                }
+        );
+
+        for (LivingEntity entity : entities) {
+
+            Rooted.root(entity, 60);
+            AABB box = entity.getBoundingBox();
+            int blockMinX = Mth.floor(box.minX);
+            int blockMinY = Mth.floor(box.minY);
+            int blockMinZ = Mth.floor(box.minZ);
+            int blockMaxX = Mth.floor(box.maxX);
+            int blockMaxY = Mth.floor(box.maxY);
+            int blockMaxZ = Mth.floor(box.maxZ);
+            for (int x = blockMinX; x <= blockMaxX; x++) {
+                for (int y = blockMinY; y <= blockMaxY; y++) {
+                    for (int z = blockMinZ; z <= blockMaxZ; z++) {
+
+                        Set<BlockPos> set = WandOfRegrowth.BLOCKS.computeIfAbsent(
+                                entity, k -> new HashSet<>()
+                        );
+
+                        BlockPos woodPos = new BlockPos(x, y, z);
+
+
+                        world.destroyBlock(woodPos, false);
+                        world.setBlock(woodPos, Blocks.OAK_WOOD.defaultBlockState(), 11);
+
+
+                        set.add(woodPos.immutable());
+                        Rooted.LOCKED.put(entity, entity.position());
+                    }
+                }
+            }
+        }
+        for (double d = 0; d <= HEIGHT; d += STEP_HEIGHT) {
             double radius = d;
-            for (double x = -radius; x <= radius; x += stepRadius) {
-                for (double y = -radius; y <= radius; y += stepRadius) {
+            double radiusSqr = radius * radius;
+            for (double x = -radius; x <= radius; x += STEP_RADIUS) {
+                for (double y = -radius; y <= radius; y += STEP_RADIUS) {
 
-                    if (x * x + y * y > radius * radius) {
+                    if (x * x + y * y > radiusSqr) {
                         continue;
                     }
 
@@ -62,62 +129,6 @@ public class WandOfRegrowth extends EnergyWand {
 
                     // Spawn particles
                     spawnBlockParticles(world, pos);
-
-                    // Detect for living entities
-                    List<LivingEntity> entities = world.getEntitiesOfClass(
-
-                    LivingEntity.class,
-                            new AABB(
-                                    pos.x - 0.5, pos.y - 0.5, pos.z - 0.5,
-                                    pos.x + 0.5, pos.y + 0.5, pos.z + 0.5
-                            ),
-                            e -> {
-                                if (e == player ||
-                                        Untargetable.isUntargetable(e)) {
-                                    return false;
-                                }
-                                Vec3 vectorFromOriginToEntity = e.position().subtract(origin);
-                                double projectionLength = vectorFromOriginToEntity.dot(forward);
-                                if (projectionLength <= 0 || projectionLength > maxRange) {
-                                    return false;
-                                }
-                                double verticalLengthFromEntityToProjectionSqr = vectorFromOriginToEntity.lengthSqr() - (projectionLength * projectionLength);
-                                double radiusAtSamePlane = projectionLength * 0.5;
-                                return (verticalLengthFromEntityToProjectionSqr <= radiusAtSamePlane * radiusAtSamePlane);
-                            }
-                    );
-
-                    for (LivingEntity entity : entities) {
-
-                        Rooted.root(entity, 60);
-                        AABB box = entity.getBoundingBox();
-                        int minX = Mth.floor(box.minX);
-                        int minY = Mth.floor(box.minY);
-                        int minZ = Mth.floor(box.minZ);
-                        int maxX = Mth.floor(box.maxX);
-                        int maxY = Mth.floor(box.maxY);
-                        int maxZ = Mth.floor(box.maxZ);
-                        for (int x2 = minX; x2 <= maxX; x2++) {
-                            for (int y2 = minY; y2 <= maxY; y2++) {
-                                for (int z2 = minZ; z2 <= maxZ; z2++) {
-
-                                    Set<BlockPos> set = WandOfRegrowth.BLOCKS.computeIfAbsent(
-                                            entity, k -> new HashSet<>()
-                                    );
-
-                                    BlockPos woodPos = new BlockPos(x2, y2, z2);
-
-
-                                    world.destroyBlock(woodPos, false);
-                                    world.setBlock(woodPos, Blocks.OAK_WOOD.defaultBlockState(), 11);
-
-
-                                    set.add(woodPos.immutable());
-                                    Rooted.LOCKED.put(entity, entity.position());
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -127,10 +138,6 @@ public class WandOfRegrowth extends EnergyWand {
             tag.putLong("LastChargeTime", player.level().getGameTime());
         }
         setCurrentEnergy(stack, getCurrentEnergy(stack) - 1);
-    }
-
-    public ItemStack getItem() {
-        return new ItemStack(ExampleMod.BLAST_WAVE_ITEM.get());
     }
 
     private void spawnBlockParticles(Level world, Vec3 pos) {

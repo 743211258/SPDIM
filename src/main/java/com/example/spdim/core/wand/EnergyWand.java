@@ -104,7 +104,4 @@ public abstract class EnergyWand extends Wand {
     }
 
     protected abstract void cast(Level world, Player player, ItemStack stack);
-
-    public abstract ItemStack getItem();
-
 }

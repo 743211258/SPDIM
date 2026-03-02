@@ -26,6 +26,12 @@ import net.minecraft.world.phys.Vec3;
 
 public class WandOfFireblast extends EnergyWand {
 
+    // parameters of the fireblast
+    private final double HEIGHT = 10;
+    private final double RADIUS = 10;
+    private final double STEP_HEIGHT = 1;
+    private final double STEP_RADIUS = 1;
+
     public WandOfFireblast(Properties properties, int maxEnergy, int energyCost, int cooldown, Component name) {
         super(properties, maxEnergy, energyCost, cooldown, name);
     }
@@ -52,20 +58,56 @@ public class WandOfFireblast extends EnergyWand {
         Vec3 right = forward.cross(worldUp).normalize();
         Vec3 up = right.cross(forward).normalize();
 
-        // parameters of the blastwave
-        double maxRange = 10;
-        double stepForward = 1;
-        double stepRadius = 1;
+        Vec3 pointOne = origin.add(forward.scale(HEIGHT)).add(right.scale(RADIUS));
+        Vec3 pointTwo = origin.add(forward.scale(HEIGHT)).subtract(right.scale(RADIUS));
+        Vec3 pointThree = origin.add(forward.scale(HEIGHT)).add(up.scale(RADIUS));
+        Vec3 pointFour = origin.add(forward.scale(HEIGHT)).subtract(up.scale(RADIUS));
 
-        // Avoid duplicate spawning
-        Set<BlockPos> ignitedBlocks = new HashSet<>();
-        Set<Integer> lavaSpawnedEntities = new HashSet<>();
+        double minX = Math.min(Math.min(Math.min(Math.min(origin.x, pointOne.x), pointTwo.x), pointThree.x), pointFour.x);
+        double minY = Math.min(Math.min(Math.min(Math.min(origin.y, pointOne.y), pointTwo.y), pointThree.y), pointFour.y);
+        double minZ = Math.min(Math.min(Math.min(Math.min(origin.z, pointOne.z), pointTwo.z), pointThree.z), pointFour.z);
 
-        for (double d = 0; d <= maxRange; d += stepForward) {
+        double maxX = Math.max(Math.max(Math.max(Math.max(origin.x, pointOne.x), pointTwo.x), pointThree.x), pointFour.x);
+        double maxY = Math.max(Math.max(Math.max(Math.max(origin.y, pointOne.y), pointTwo.y), pointThree.y), pointFour.y);
+        double maxZ = Math.max(Math.max(Math.max(Math.max(origin.z, pointOne.z), pointTwo.z), pointThree.z), pointFour.z);
+
+        AABB box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+
+        // Detect for living entities
+        List<LivingEntity> entities = world.getEntitiesOfClass(
+                LivingEntity.class,
+                box,
+                e -> {
+                    if (e == player ||
+                            Untargetable.isUntargetable(e)) {
+                        return false;
+                    }
+                    Vec3 vectorFromOriginToEntity = e.position().subtract(origin);
+                    double projectionLength = vectorFromOriginToEntity.dot(forward);
+                    if (projectionLength <= 0 || projectionLength > HEIGHT) {
+                        return false;
+                    }
+                    double verticalLengthFromEntityToProjectionSqr = vectorFromOriginToEntity.lengthSqr() - (projectionLength * projectionLength);
+                    double radiusAtSamePlane = projectionLength;
+                    return (verticalLengthFromEntityToProjectionSqr <= radiusAtSamePlane * radiusAtSamePlane);
+                }
+        );
+
+        // Spawn lava on any entity
+        for (LivingEntity entity : entities) {
+            BlockPos lavaPos = entity.blockPosition();
+            world.setBlock(
+                    lavaPos,
+                    Blocks.LAVA.defaultBlockState(),
+                    11
+            );
+        }
+
+        for (double d = 0; d <= HEIGHT; d += STEP_HEIGHT) {
             double radius = d;
             double radiusSqr = radius * radius;
-            for (double x = -radius; x <= radius; x += stepRadius) {
-                for (double y = -radius; y <= radius; y += stepRadius) {
+            for (double x = -radius; x <= radius; x += STEP_RADIUS) {
+                for (double y = -radius; y <= radius; y += STEP_RADIUS) {
 
                     if (radius == 0 || x * x + y * y > radiusSqr) {
                         continue;
@@ -76,46 +118,8 @@ public class WandOfFireblast extends EnergyWand {
                     // Spawn fire particles
                     spawnFireParticles(world, pos);
 
-                    // Detect for living entities
-                    List<LivingEntity> entities = world.getEntitiesOfClass(
-                            LivingEntity.class,
-                            new AABB(
-                                    pos.x - 0.5, pos.y - 0.5, pos.z - 0.5,
-                                    pos.x + 0.5, pos.y + 0.5, pos.z + 0.5
-                            ),
-                            e -> {
-                                if (e == player ||
-                                        Untargetable.isUntargetable(e)) {
-                                    return false;
-                                }
-                                Vec3 vectorFromOriginToEntity = e.position().subtract(origin);
-                                double projectionLength = vectorFromOriginToEntity.dot(forward);
-                                if (projectionLength <= 0 || projectionLength > maxRange) {
-                                    return false;
-                                }
-                                double verticalLengthFromEntityToProjectionSqr = vectorFromOriginToEntity.lengthSqr() - (projectionLength * projectionLength);
-                                double radiusAtSamePlane = projectionLength * 0.5;
-                                return (verticalLengthFromEntityToProjectionSqr <= radiusAtSamePlane * radiusAtSamePlane && lavaSpawnedEntities.add(e.getId()));
-                            }
-                    );
-
-                    // Spawn lava on any entity
-                    for (LivingEntity entity : entities) {
-                        BlockPos lavaPos = entity.blockPosition();
-                        world.setBlock(
-                                lavaPos,
-                                Blocks.LAVA.defaultBlockState(),
-                                11
-                        );
-                    }
-
                     // Ignite any block surface
                     BlockPos blockPos = BlockPos.containing(pos);
-
-                    // Check for duplicates.
-                    if (!ignitedBlocks.add(blockPos)) {
-                        continue;
-                    }
 
                     BlockState state = world.getBlockState(blockPos);
 
@@ -154,14 +158,10 @@ public class WandOfFireblast extends EnergyWand {
         server.sendParticles(
                 ParticleTypes.FLAME,
                 pos.x, pos.y, pos.z,
-                2,
+                1,
                 0.12, 0.12, 0.12,
                 0.02
         );
     }
 
-    @Override
-    public ItemStack getItem() {
-        return new ItemStack(ExampleMod.BLAST_WAVE_ITEM.get());
-    }
 }

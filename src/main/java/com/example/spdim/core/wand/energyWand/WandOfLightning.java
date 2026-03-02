@@ -11,8 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-import com.example.spdim.ExampleMod;
-
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -97,7 +95,7 @@ public class WandOfLightning extends EnergyWand{
         // Generate lightning at the chosen location.
         LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(world);
         if (lightning != null) {
-            BlockPos blockPos = getBlockAbove(world, hitPos);
+            BlockPos blockPos = getBlockAbove(world, hitPos, player);
             if (blockPos == null) {
                 lightning.moveTo(hitPos);
             } else {
@@ -138,7 +136,7 @@ public class WandOfLightning extends EnergyWand{
             // Generate lightnings on entities.
             LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(world);
             if (lightning != null) {
-                BlockPos blockPos = getBlockAbove(world, e.position());
+                BlockPos blockPos = getBlockAbove(world, e.position(), player);
                 if (blockPos == null) {
                     lightning.moveTo(e.position());
                 } else {
@@ -155,36 +153,27 @@ public class WandOfLightning extends EnergyWand{
         }
     }
 
-
-    public ItemStack getItem() {
-        return new ItemStack(ExampleMod.BLAST_WAVE_ITEM.get());
-    }
-
     @Nullable
-    private BlockPos getBlockAbove(Level level, Vec3 pos) {
+    private BlockPos getBlockAbove(Level level, Vec3 pos, Player player) {
         // Calculate the starting point
-        int startX = Mth.floor(pos.x);
-        int startZ = Mth.floor(pos.z);
-        int y = Mth.floor(pos.y) + 1;
+        Vec3 start = new Vec3(pos.x, Mth.floor(level.getMaxBuildHeight()) + 1, pos.z);
 
-        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos(startX, y, startZ);
+        Vec3 end = new Vec3(pos.x, Mth.floor(pos.y + 1), pos.z);
 
-        // Get the maximum height
-        int maxY = level.getMaxBuildHeight();
-        BlockPos found = null;
+        // Use clipContext to find the highest block above the player.
+        BlockHitResult hit = level.clip(new ClipContext(
+                start,
+                end,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                player
+        ));
 
-        // Iterate through every block above the starting point
-        for (int yy = y; yy < maxY; yy++) {
-            mutablePos.set(startX, yy, startZ);
-
-            // Consider only collidable block
-            if (!level.getBlockState(mutablePos).getCollisionShape(level, mutablePos).isEmpty()) {
-                found = mutablePos.immutable();
-            }
+        if (hit.getType() == HitResult.Type.BLOCK) {
+            return hit.getBlockPos();
         }
-
         // Return the upmost collidable block above the starting point.
-        return found;
+        return null;
     }
 
 }

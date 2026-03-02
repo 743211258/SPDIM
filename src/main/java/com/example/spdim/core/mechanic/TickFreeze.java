@@ -1,5 +1,6 @@
 package com.example.spdim.core.mechanic;
 
+import com.example.spdim.core.data_structure.PosAndDirection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -11,8 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class TickFreeze {
-    private static Map<LivingEntity, Integer> active = new HashMap<>();
-    public static final Map<LivingEntity, LockPosition> LOCKED = new HashMap<>();
+    private static final Map<LivingEntity, Integer> active = new HashMap<>();
+    public static final Map<LivingEntity, PosAndDirection> LOCKED = new HashMap<>();
 
 
     public static void freeze(LivingEntity target, int ticks) {
@@ -52,7 +53,7 @@ public class TickFreeze {
 
                 // Add the mob to all hashmap if it isn't in them.
                 if (!LOCKED.containsKey(mob)) {
-                    LockPosition lp = new LockPosition();
+                    PosAndDirection lp = new PosAndDirection();
                     lp.pos = mob.position();
                     lp.yRot = mob.getYRot();
                     lp.xRot = mob.getXRot();
@@ -61,7 +62,7 @@ public class TickFreeze {
                     LOCKED.put(mob, lp);
                 }
 
-                LockPosition lp = LOCKED.get(mob);
+                PosAndDirection lp = LOCKED.get(mob);
 
                 // Lock the position.
                 mob.setPos(lp.pos.x, lp.pos.y, lp.pos.z);
@@ -87,7 +88,7 @@ public class TickFreeze {
 
                 // Add the player to all hashmap if it isn't in them.
                 if (!LOCKED.containsKey(player)) {
-                    LockPosition lp = new LockPosition();
+                    PosAndDirection lp = new PosAndDirection();
                     lp.pos = player.position();
                     lp.yRot = player.getYRot();
                     lp.xRot = player.getXRot();
@@ -95,16 +96,13 @@ public class TickFreeze {
                     lp.yBodyRot = player.yBodyRot;
                     LOCKED.put(player, lp);
                 }
-                LockPosition lp = LOCKED.get(player);
+                PosAndDirection lp = LOCKED.get(player);
 
                 // Lock the position.
                 player.setPos(lp.pos.x, lp.pos.y, lp.pos.z);
 
                 // 2. Lock the speed.
                 player.setDeltaMovement(Vec3.ZERO);
-
-                // Update them to the client side.
-                player.hurtMarked = true;
 
                 // Lock the direction
                 player.setYRot(lp.yRot);

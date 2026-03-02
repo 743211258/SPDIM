@@ -11,11 +11,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
+
 public class Rooted {
     // Hashmap to keep track of players that are rooted.
     private static Map<LivingEntity, Integer> active = new HashMap<>();
     // Hashmap to keep track of the location of them.
     public static final Map<LivingEntity, Vec3> LOCKED = new HashMap<>();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static void root(LivingEntity target, int ticks) {
         if (target == null || ticks < 0) {
@@ -58,6 +62,7 @@ public class Rooted {
                 mob.hurtMarked = true;
             } else if (entity instanceof Player player) {
                 if (!LOCKED.containsKey(player)) {
+                    LOGGER.info("[DEBUG]: Player location is updated!!");
                     LOCKED.put(player, player.position());
                 }
                 Vec3 lp = LOCKED.get(player);
